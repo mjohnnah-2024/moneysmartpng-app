@@ -12,13 +12,14 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use Laravel\Sanctum\HasApiTokens;
 
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, TwoFactorAuthenticatable;
+    use HasApiTokens, HasFactory, Notifiable, TwoFactorAuthenticatable;
 
     /**
      * Get the attributes that should be cast.
@@ -81,6 +82,42 @@ class User extends Authenticatable
     public function manualPayments(): HasMany
     {
         return $this->hasMany(ManualPayment::class);
+    }
+
+    /** @return HasMany<RecurringExpense, $this> */
+    public function recurringExpenses(): HasMany
+    {
+        return $this->hasMany(RecurringExpense::class);
+    }
+
+    /** @return HasMany<NotificationPreference, $this> */
+    public function notificationPreferences(): HasMany
+    {
+        return $this->hasMany(NotificationPreference::class);
+    }
+
+    /** @return HasMany<Streak, $this> */
+    public function streaks(): HasMany
+    {
+        return $this->hasMany(Streak::class);
+    }
+
+    /** @return HasMany<Achievement, $this> */
+    public function achievements(): HasMany
+    {
+        return $this->hasMany(Achievement::class);
+    }
+
+    /** @return HasMany<SquadMember, $this> */
+    public function squadMemberships(): HasMany
+    {
+        return $this->hasMany(SquadMember::class);
+    }
+
+    /** @return HasMany<Squad, $this> */
+    public function createdSquads(): HasMany
+    {
+        return $this->hasMany(Squad::class, 'creator_id');
     }
 
     public function hasActiveSubscription(): bool

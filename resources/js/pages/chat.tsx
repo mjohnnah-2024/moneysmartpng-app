@@ -151,7 +151,7 @@ export default function Chat({ messages: initialMessages, usage }: Props) {
     return (
         <>
             <Head title="AI Coach" />
-            <div className="flex h-[calc(100vh-4rem)] flex-col md:h-[calc(100vh-2rem)]">
+            <div className="flex h-[calc(100vh-8rem)] flex-col md:h-[calc(100vh-5rem)]">
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-border px-4 py-3">
                     <div className="flex items-center gap-2">

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreUserRequest;
+use App\Http\Requests\Admin\UpdateUserRequest;
 use App\Models\Profile;
 use App\Models\Subscription;
 use App\Models\User;
@@ -40,6 +42,27 @@ class UserController extends Controller
         ]);
     }
 
+    public function create(): Response
+    {
+        return Inertia::render('admin/user-form');
+    }
+
+    public function store(StoreUserRequest $request): RedirectResponse
+    {
+        $user = User::create([
+            'name' => $request->validated('name'),
+            'email' => $request->validated('email'),
+            'password' => $request->validated('password'),
+        ]);
+
+        $user->forceFill([
+            'is_admin' => $request->boolean('is_admin'),
+            'email_verified_at' => now(),
+        ])->save();
+
+        return redirect()->route('admin.users.show', $user)->with('success', "User {$user->name} created successfully.");
+    }
+
     public function show(User $user): Response
     {
         $user->load(['profile', 'subscription', 'manualPayments' => fn ($q) => $q->latest()->take(5)]);
@@ -47,6 +70,38 @@ class UserController extends Controller
         return Inertia::render('admin/user-detail', [
             'user' => $user,
         ]);
+    }
+
+    public function edit(User $user): Response
+    {
+        return Inertia::render('admin/user-form', [
+            'user' => $user->only('id', 'name', 'email', 'is_admin'),
+        ]);
+    }
+
+    public function update(UpdateUserRequest $request, User $user): RedirectResponse
+    {
+        $user->update([
+            'name' => $request->validated('name'),
+            'email' => $request->validated('email'),
+        ]);
+
+        $user->forceFill(['is_admin' => $request->boolean('is_admin')])->save();
+
+        return redirect()->route('admin.users.show', $user)->with('success', "User {$user->name} updated successfully.");
+    }
+
+    public function toggleAdmin(User $user): RedirectResponse
+    {
+        if ($user->id === auth()->id()) {
+            return back()->with('error', 'You cannot change your own admin status.');
+        }
+
+        $user->forceFill(['is_admin' => ! $user->is_admin])->save();
+
+        $status = $user->is_admin ? 'granted' : 'revoked';
+
+        return back()->with('success', "Admin access {$status} for {$user->name}.");
     }
 
     public function grantPremium(Request $request, User $user): RedirectResponse
@@ -91,13 +146,21 @@ class UserController extends Controller
             return back()->with('error', 'Cannot delete admin users.');
         }
 
-        // Delete all related data
+        if ($user->id === auth()->id()) {
+            return back()->with('error', 'You cannot delete your own account.');
+        }
+
         $user->transactions()->delete();
         $user->budgets()->delete();
         $user->goals()->delete();
         $user->chatMessages()->delete();
         $user->usageTracking()->delete();
         $user->manualPayments()->delete();
+        $user->recurringExpenses()->delete();
+        $user->notificationPreferences()->delete();
+        $user->streaks()->delete();
+        $user->achievements()->delete();
+        $user->squadMemberships()->delete();
         Subscription::where('user_id', $user->id)->delete();
         Profile::where('user_id', $user->id)->delete();
         $user->delete();

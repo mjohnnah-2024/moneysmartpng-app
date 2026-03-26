@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AchievementController;
 use App\Http\Controllers\Admin\AiUsageController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\PaymentController;
@@ -13,9 +14,13 @@ use App\Http\Controllers\InsightsController;
 use App\Http\Controllers\ManualPaymentController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PremiumController;
+use App\Http\Controllers\RecurringExpenseController;
 use App\Http\Controllers\Settings\LanguageController;
+use App\Http\Controllers\Settings\NotificationController;
 use App\Http\Controllers\Settings\ReferralController;
 use App\Http\Controllers\Settings\SubscriptionController;
+use App\Http\Controllers\SquadChallengeController;
+use App\Http\Controllers\SquadController;
 use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Middleware\CheckPlanGate;
@@ -51,6 +56,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->middleware(CheckPlanGate::class.':goals');
         Route::post('goals/{goal}/contribute', [GoalController::class, 'contribute'])->name('goals.contribute');
         Route::get('insights', InsightsController::class)->name('insights');
+        Route::get('achievements', AchievementController::class)->name('achievements');
+
+        Route::resource('bills', RecurringExpenseController::class)->except(['show']);
+        Route::post('bills/{bill}/mark-paid', [RecurringExpenseController::class, 'markPaid'])->name('bills.mark-paid');
 
         Route::get('chat', [ChatController::class, 'index'])->name('chat.index');
         Route::post('chat', [ChatController::class, 'store'])->name('chat.store')->middleware([CheckPlanGate::class.':ai_chat', 'throttle:ai-chat']);
@@ -59,7 +68,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('settings/referral', [ReferralController::class, 'index'])->name('referral.index');
         Route::get('settings/language', [LanguageController::class, 'edit'])->name('language.edit');
         Route::patch('settings/language', [LanguageController::class, 'update'])->name('language.update');
+        Route::get('settings/notifications', [NotificationController::class, 'edit'])->name('notifications.edit');
+        Route::patch('settings/notifications', [NotificationController::class, 'update'])->name('notifications.update');
         Route::get('export/transactions', [ExportController::class, 'transactions'])->name('export.transactions');
+
+        Route::get('squads', [SquadController::class, 'index'])->name('squads.index');
+        Route::post('squads', [SquadController::class, 'store'])->name('squads.store');
+        Route::post('squads/join', [SquadController::class, 'join'])->name('squads.join');
+        Route::get('squads/{squad}', [SquadController::class, 'show'])->name('squads.show');
+        Route::delete('squads/{squad}', [SquadController::class, 'destroy'])->name('squads.destroy');
+        Route::post('squads/{squad}/leave', [SquadController::class, 'leave'])->name('squads.leave');
+        Route::post('squads/{squad}/challenges', [SquadChallengeController::class, 'store'])->name('squads.challenges.store');
+        Route::get('squads/{squad}/challenges/{challenge}', [SquadChallengeController::class, 'show'])->name('squads.challenges.show');
+        Route::post('squads/{squad}/challenges/{challenge}/progress', [SquadChallengeController::class, 'updateProgress'])->name('squads.challenges.progress');
 
         Route::get('premium', [PremiumController::class, 'show'])->name('premium.show');
         Route::post('premium/checkout', [PremiumController::class, 'createCheckoutSession'])->name('premium.checkout');
@@ -71,7 +92,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(IsAdmin::class)->prefix('admin')->name('admin.')->group(function () {
         Route::get('/', AdminDashboardController::class)->name('dashboard');
         Route::get('users', [UserController::class, 'index'])->name('users.index');
+        Route::get('users/create', [UserController::class, 'create'])->name('users.create');
+        Route::post('users', [UserController::class, 'store'])->name('users.store');
         Route::get('users/{user}', [UserController::class, 'show'])->name('users.show');
+        Route::get('users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+        Route::put('users/{user}', [UserController::class, 'update'])->name('users.update');
+        Route::post('users/{user}/toggle-admin', [UserController::class, 'toggleAdmin'])->name('users.toggle-admin');
         Route::post('users/{user}/grant-premium', [UserController::class, 'grantPremium'])->name('users.grant-premium');
         Route::post('users/{user}/revoke-premium', [UserController::class, 'revokePremium'])->name('users.revoke-premium');
         Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');

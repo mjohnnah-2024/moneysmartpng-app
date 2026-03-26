@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\RecommendationsService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class InsightsController extends Controller
 {
-    public function __invoke(Request $request): Response
+    public function __invoke(Request $request, RecommendationsService $recommendationsService): Response
     {
         $user = $request->user();
         $now = now();
@@ -128,6 +129,7 @@ class InsightsController extends Controller
             'dailySpending' => $dailySpending,
             'alerts' => $alerts,
             'comparison' => $comparison,
+            'recommendations' => $recommendationsService->generate($user),
         ]);
     }
 }

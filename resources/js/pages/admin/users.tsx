@@ -1,9 +1,11 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowUpDown, ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { ArrowUpDown, ChevronLeft, ChevronRight, Edit, Eye, MoreHorizontal, Plus, Search, Shield, ShieldOff, Trash2 } from 'lucide-react';
+import { formatDate } from '@/lib/formatters';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import AdminLayout from '@/layouts/admin-layout';
 import type { PaginatedData, Profile, Subscription } from '@/types';
@@ -29,12 +31,10 @@ type Props = {
     filters: Filters;
 };
 
-function formatDate(date: string): string {
-    return new Date(date).toLocaleDateString('en-PG', { year: 'numeric', month: 'short', day: 'numeric' });
-}
-
 export default function AdminUsers({ users, filters }: Props) {
     const [search, setSearch] = useState(filters.search);
+    const [deleteUser, setDeleteUser] = useState<AdminUser | null>(null);
+    const [deleting, setDeleting] = useState(false);
 
     function handleSearch(e: React.FormEvent) {
         e.preventDefault();
@@ -46,13 +46,36 @@ export default function AdminUsers({ users, filters }: Props) {
         router.get('/admin/users', { search: filters.search, sort: field, direction }, { preserveState: true });
     }
 
+    function handleDelete() {
+        if (!deleteUser) return;
+        setDeleting(true);
+        router.delete(`/admin/users/${deleteUser.id}`, {
+            onFinish: () => {
+                setDeleting(false);
+                setDeleteUser(null);
+            },
+        });
+    }
+
+    function handleToggleAdmin(user: AdminUser) {
+        router.post(`/admin/users/${user.id}/toggle-admin`, {}, { preserveScroll: true });
+    }
+
     return (
         <>
             <Head title="Admin - Users" />
             <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-bold">Users Management</h1>
-                    <Badge variant="outline">{users.total} users</Badge>
+                    <div>
+                        <h1 className="text-2xl font-bold">Users Management</h1>
+                        <p className="text-sm text-muted-foreground">{users.total} total users</p>
+                    </div>
+                    <Link href="/admin/users/create">
+                        <Button size="sm">
+                            <Plus className="mr-1 h-4 w-4" />
+                            Create User
+                        </Button>
+                    </Link>
                 </div>
 
                 {/* Search */}
@@ -93,6 +116,7 @@ export default function AdminUsers({ users, filters }: Props) {
                                             </button>
                                         </th>
                                         <th className="px-4 py-3 text-left font-medium">Role</th>
+                                        <th className="px-4 py-3 text-right font-medium">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -113,11 +137,45 @@ export default function AdminUsers({ users, filters }: Props) {
                                             <td className="px-4 py-3">
                                                 {user.is_admin && <Badge className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">Admin</Badge>}
                                             </td>
+                                            <td className="px-4 py-3">
+                                                <div className="flex items-center justify-end gap-1">
+                                                    <Link href={`/admin/users/${user.id}`} title="View">
+                                                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                                                            <Eye className="h-4 w-4" />
+                                                        </Button>
+                                                    </Link>
+                                                    <Link href={`/admin/users/${user.id}/edit`} title="Edit">
+                                                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                                                            <Edit className="h-4 w-4" />
+                                                        </Button>
+                                                    </Link>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8"
+                                                        title={user.is_admin ? 'Revoke Admin' : 'Make Admin'}
+                                                        onClick={() => handleToggleAdmin(user)}
+                                                    >
+                                                        {user.is_admin ? <ShieldOff className="h-4 w-4 text-orange-500" /> : <Shield className="h-4 w-4" />}
+                                                    </Button>
+                                                    {!user.is_admin && (
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="h-8 w-8 text-red-500 hover:text-red-700"
+                                                            title="Delete"
+                                                            onClick={() => setDeleteUser(user)}
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </td>
                                         </tr>
                                     ))}
                                     {users.data.length === 0 && (
                                         <tr>
-                                            <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
+                                            <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
                                                 No users found.
                                             </td>
                                         </tr>
@@ -155,6 +213,24 @@ export default function AdminUsers({ users, filters }: Props) {
                     </div>
                 )}
             </div>
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog open={!!deleteUser} onOpenChange={(open) => !open && setDeleteUser(null)}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Delete User</DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to delete <strong>{deleteUser?.name}</strong>? This will permanently remove the user and all their data. This action cannot be undone.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setDeleteUser(null)}>Cancel</Button>
+                        <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
+                            {deleting ? 'Deleting...' : 'Delete User'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </>
     );
 }

@@ -9,9 +9,11 @@ use App\Models\Subscription;
 use App\Models\Transaction;
 use App\Models\UsageTracking;
 use App\Models\User;
+use Carbon\CarbonImmutable;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-uses(TestCase::class, Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(TestCase::class, RefreshDatabase::class);
 
 test('user casts is_admin to boolean', function () {
     $user = User::factory()->create(['is_admin' => 1]);
@@ -22,7 +24,7 @@ test('user casts is_admin to boolean', function () {
 test('user casts email_verified_at to datetime', function () {
     $user = User::factory()->create();
 
-    expect($user->email_verified_at)->toBeInstanceOf(\Carbon\CarbonImmutable::class);
+    expect($user->email_verified_at)->toBeInstanceOf(CarbonImmutable::class);
 });
 
 test('user casts password as hashed', function () {
@@ -49,7 +51,8 @@ test('user has transactions relationship', function () {
 
 test('user has budgets relationship', function () {
     $user = User::factory()->create();
-    Budget::factory()->count(2)->for($user)->create();
+    Budget::factory()->for($user)->create(['category' => 'Food']);
+    Budget::factory()->for($user)->create(['category' => 'Transport']);
 
     expect($user->budgets)->toHaveCount(2);
 });

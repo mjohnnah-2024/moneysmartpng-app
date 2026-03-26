@@ -75,5 +75,22 @@
     "smart_alerts": "Smart Alerts",
     "budget_exceeded": "You've exceeded your budget!",
     "budget_warning": "You're approaching your budget limit.",
-    "no_insights": "Start adding transactions to see your spending insights."
+    "no_insights": "Start adding transactions to see your spending insights.",
+    "language": "Language",
+    "language_description": "Choose your preferred language",
+    "english": "English",
+    "tok_pisin": "Tok Pisin",
+    "saved": "Saved.",
+    "profile": "Profile",
+    "security": "Security",
+    "subscription": "Subscription",
+    "referral": "Referral",
+    "appearance": "Appearance",
+    "manage_settings": "Manage your profile and account settings",
+    "clear_chat_confirm": "Clear all chat history?",
+    "clear_failed": "Failed to clear chat history.",
+    "upgrade_to_premium": "Upgrade to Premium",
+    "of": "of",
+    "just_now": "just now",
+    "ago": "ago"
 }

@@ -75,5 +75,22 @@
     "smart_alerts": "Ol Woning",
     "budget_exceeded": "Yu usim winim baset bilong yu!",
     "budget_warning": "Yu klostu long mak bilong baset.",
-    "no_insights": "Putim ol baim pastaim bai yu lukim spenin insait bilong yu."
+    "no_insights": "Putim ol baim pastaim bai yu lukim spenin insait bilong yu.",
+    "language": "Tokples",
+    "language_description": "Makim tokples yu laikim",
+    "english": "Inglis",
+    "tok_pisin": "Tok Pisin",
+    "saved": "Sevim pinis.",
+    "profile": "Profail",
+    "security": "Sekyuriti",
+    "subscription": "Sabskripsen",
+    "referral": "Referol",
+    "appearance": "Lukluk",
+    "manage_settings": "Lukautim profail na akaun seting bilong yu",
+    "clear_chat_confirm": "Klinim olgeta chat histori?",
+    "clear_failed": "No inap klinim chat histori.",
+    "upgrade_to_premium": "Apgreitim long Premium",
+    "of": "bilong",
+    "just_now": "nau tasol",
+    "ago": "i go pinis"
 }

@@ -107,3 +107,97 @@ export type AiUsage = {
     count: number;
     limit: number | null;
 };
+
+export type RecurringExpense = {
+    id: number;
+    name: string;
+    amount: number;
+    category: string;
+    frequency: 'monthly' | 'fortnightly' | 'weekly';
+    due_day: number;
+    is_paid: boolean;
+    last_paid_at: string | null;
+};
+
+export type SafeToSpend = {
+    daily: number;
+    remaining: number;
+    percentage: number;
+    status: 'green' | 'yellow' | 'red';
+    nextBill: {
+        name: string;
+        amount: number;
+        days_until: number;
+    } | null;
+    breakdown: {
+        availableBalance: number;
+        pendingBills: number;
+        goalContributions: number;
+    };
+};
+
+export type BillsSummary = {
+    totalBills: number;
+    totalAmount: number;
+    paidCount: number;
+    unpaidAmount: number;
+};
+
+export type Recommendation = {
+    id: string;
+    type: 'info' | 'warning' | 'success';
+    message: string;
+    action?: {
+        label: string;
+        href: string;
+    };
+};
+
+export type StreakData = {
+    id: number;
+    type: string;
+    current_count: number;
+    longest_count: number;
+    last_recorded_at: string | null;
+};
+
+export type AchievementData = {
+    badge_key: string;
+    name: string;
+    description: string;
+    points: number;
+    earned_at: string | null;
+};
+
+export type SquadData = {
+    id: number;
+    name: string;
+    description: string | null;
+    invite_code: string;
+    max_members: number;
+    is_active: boolean;
+    member_count: number;
+    challenge_count: number;
+    role: 'admin' | 'member';
+};
+
+export type SquadChallengeData = {
+    id: number;
+    name: string;
+    target_amount: number;
+    starts_at: string;
+    ends_at: string;
+    is_active: boolean;
+    progress: Array<{
+        user_name: string;
+        percentage: number;
+    }>;
+};
+
+export type NotificationPreferenceData = {
+    id: number;
+    type: string;
+    in_app: boolean;
+    push: boolean;
+    enabled: boolean;
+};

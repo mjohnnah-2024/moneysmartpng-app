@@ -1,7 +1,10 @@
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
+import { formatKina, formatKinaShort } from '@/lib/formatters';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertTriangle, AlertCircle, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { AlertTriangle, AlertCircle, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownLeft, Lightbulb, Info, CheckCircle } from 'lucide-react';
+import type { Recommendation } from '@/types';
 
 type CategoryData = {
     category: string;
@@ -46,6 +49,7 @@ type Props = {
     dailySpending: DailySpending[];
     alerts: Alert[];
     comparison: Comparison;
+    recommendations: Recommendation[];
 };
 
 const COLORS = [
@@ -56,21 +60,55 @@ const COLORS = [
     'var(--color-chart-5)',
 ];
 
-function formatKina(amount: number): string {
-    return `K ${amount.toLocaleString('en-PG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
+export default function Insights({ spendingByCategory, monthlyTrends, dailySpending, alerts, comparison, recommendations }: Props) {
+    const recommendationIcon = (type: string) => {
+        switch (type) {
+            case 'warning': return <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />;
+            case 'success': return <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />;
+            default: return <Info className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />;
+        }
+    };
 
-function formatKinaShort(amount: number): string {
-    if (amount >= 1000) return `K${(amount / 1000).toFixed(1)}k`;
-    return `K${amount.toFixed(0)}`;
-}
+    const recommendationBg = (type: string) => {
+        switch (type) {
+            case 'warning': return 'bg-amber-50 dark:bg-amber-900/20';
+            case 'success': return 'bg-emerald-50 dark:bg-emerald-900/20';
+            default: return 'bg-blue-50 dark:bg-blue-900/20';
+        }
+    };
 
-export default function Insights({ spendingByCategory, monthlyTrends, dailySpending, alerts, comparison }: Props) {
     return (
         <>
             <Head title="Spending Insights" />
             <div className="flex flex-col gap-4 p-4">
                 <h1 className="text-2xl font-bold">Spending Insights</h1>
+
+                {/* Recommendations */}
+                {recommendations.length > 0 && (
+                    <Card>
+                        <CardHeader className="pb-2">
+                            <CardTitle className="flex items-center gap-2 text-base">
+                                <Lightbulb className="h-4 w-4 text-amber-500" />
+                                Recommendations
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                            {recommendations.map((rec) => (
+                                <div key={rec.id} className={`flex items-start gap-3 rounded-lg p-3 ${recommendationBg(rec.type)}`}>
+                                    {recommendationIcon(rec.type)}
+                                    <div className="flex-1">
+                                        <p className="text-sm">{rec.message}</p>
+                                        {rec.action && (
+                                            <Button variant="link" size="sm" className="h-auto p-0 text-xs" asChild>
+                                                <Link href={rec.action.href}>{rec.action.label} &rarr;</Link>
+                                            </Button>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </CardContent>
+                    </Card>
+                )}
 
                 {/* Smart Alerts */}
                 {alerts.length > 0 && (

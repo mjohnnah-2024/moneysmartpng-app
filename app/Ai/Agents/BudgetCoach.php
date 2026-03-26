@@ -29,7 +29,7 @@ class BudgetCoach implements Agent, Conversational
         $context = $this->buildFinancialContext();
 
         $language = $this->user->profile?->preferred_language === 'tpi'
-            ? 'Respond in Tok Pisin (PNG Pidgin English). Use simple, friendly language.'
+            ? 'IMPORTANT: You MUST respond entirely in Tok Pisin (PNG Pidgin English). Use simple, friendly Tok Pisin throughout. Do not mix in English unless using financial terms like "budget" or "savings goal". Example greetings: "Gutpela dei!", "Orait,".'
             : 'Respond in clear, simple English.';
 
         $income = $context['monthly_income']

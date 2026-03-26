@@ -1,5 +1,6 @@
 import { Head } from '@inertiajs/react';
 import { Activity, Crown, DollarSign, MessageSquare, TrendingUp, Users } from 'lucide-react';
+import { formatKina, formatRelativeDate } from '@/lib/formatters';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,18 +27,6 @@ type Props = {
     weeklyUpgrades: Array<{ week: string; count: number }>;
     recentActivity: ActivityItem[];
 };
-
-function formatKina(amount: number): string {
-    return `K ${amount.toLocaleString('en-PG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
-
-function timeAgo(timestamp: string): string {
-    const seconds = Math.floor((Date.now() - new Date(timestamp).getTime()) / 1000);
-    if (seconds < 60) return 'just now';
-    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-    return `${Math.floor(seconds / 86400)}d ago`;
-}
 
 const activityColors: Record<string, string> = {
     signup: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
@@ -144,7 +133,7 @@ export default function AdminDashboard({ stats, dailySignups, weeklyUpgrades, re
                                             <span className="text-sm">{item.description}</span>
                                         </div>
                                         <span className="text-xs text-muted-foreground whitespace-nowrap">
-                                            {timeAgo(item.timestamp)}
+                                            {formatRelativeDate(item.timestamp)}
                                         </span>
                                     </div>
                                 ))}

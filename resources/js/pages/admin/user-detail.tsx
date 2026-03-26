@@ -1,5 +1,6 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { ArrowLeft, Crown, Shield, Trash2 } from 'lucide-react';
+import { ArrowLeft, Crown, Edit, Shield, Trash2 } from 'lucide-react';
+import { formatDate, formatKina } from '@/lib/formatters';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -32,28 +33,20 @@ type Props = {
     user: UserDetail;
 };
 
-function formatDate(date: string): string {
-    return new Date(date).toLocaleDateString('en-PG', { year: 'numeric', month: 'short', day: 'numeric' });
-}
-
-function formatKina(amount: number | string): string {
-    const num = typeof amount === 'string' ? parseFloat(amount) : amount;
-    return `K ${num.toLocaleString('en-PG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
-
 export default function AdminUserDetail({ user }: Props) {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [grantMonths, setGrantMonths] = useState('1');
     const isPremium = user.subscription?.status === 'active';
 
-    const grantForm = useForm({});
     const revokeForm = useForm({});
     const deleteForm = useForm({});
+    const [granting, setGranting] = useState(false);
 
     function handleGrant() {
-        grantForm.post(`/admin/users/${user.id}/grant-premium`, {
-            data: { months: parseInt(grantMonths) },
+        router.post(`/admin/users/${user.id}/grant-premium`, { months: parseInt(grantMonths) }, {
             preserveScroll: true,
+            onBefore: () => setGranting(true),
+            onFinish: () => setGranting(false),
         });
     }
 
@@ -75,6 +68,12 @@ export default function AdminUserDetail({ user }: Props) {
                     </Link>
                     <h1 className="text-2xl font-bold">{user.name}</h1>
                     {user.is_admin && <Badge className="bg-red-100 text-red-700">Admin</Badge>}
+                    <Link href={`/admin/users/${user.id}/edit`} className="ml-auto">
+                        <Button variant="outline" size="sm">
+                            <Edit className="mr-1 h-4 w-4" />
+                            Edit
+                        </Button>
+                    </Link>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-3">
@@ -207,7 +206,7 @@ export default function AdminUserDetail({ user }: Props) {
                                                 <SelectItem value="12">12 Months</SelectItem>
                                             </SelectContent>
                                         </Select>
-                                        <Button size="sm" onClick={handleGrant} disabled={grantForm.processing}>
+                                        <Button size="sm" onClick={handleGrant} disabled={granting}>
                                             Grant
                                         </Button>
                                     </div>

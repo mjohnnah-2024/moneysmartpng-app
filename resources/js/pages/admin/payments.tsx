@@ -1,5 +1,6 @@
 import { Head, useForm } from '@inertiajs/react';
 import { Check, X } from 'lucide-react';
+import { formatDate, formatKina } from '@/lib/formatters';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -30,15 +31,6 @@ type Props = {
     activeTab: 'stripe' | 'mobile_money';
     pendingCount: number;
 };
-
-function formatDate(date: string): string {
-    return new Date(date).toLocaleDateString('en-PG', { year: 'numeric', month: 'short', day: 'numeric' });
-}
-
-function formatKina(amount: number | string): string {
-    const num = typeof amount === 'string' ? parseFloat(amount) : amount;
-    return `K ${num.toLocaleString('en-PG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
 
 const statusColors: Record<string, string> = {
     pending: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',

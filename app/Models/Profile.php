@@ -18,6 +18,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'referral_code',
     'referred_by',
     'premium_days_earned',
+    'pay_cycle_type',
+    'pay_cycle_start_day',
 ])]
 class Profile extends Model
 {
@@ -29,6 +31,8 @@ class Profile extends Model
         'preferred_language' => 'en',
         'plan' => 'free',
         'premium_days_earned' => 0,
+        'pay_cycle_type' => 'monthly',
+        'pay_cycle_start_day' => 1,
     ];
 
     protected function casts(): array
@@ -36,6 +40,7 @@ class Profile extends Model
         return [
             'monthly_income' => 'decimal:2',
             'premium_days_earned' => 'integer',
+            'pay_cycle_start_day' => 'integer',
         ];
     }
 
