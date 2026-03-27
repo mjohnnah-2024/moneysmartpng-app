@@ -1,6 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { dashboard, login, register } from '@/routes';
-import { DollarSign, Target, BarChart3, MessageCircle, Shield, Sparkles } from 'lucide-react';
+import { Landmark, Target, BarChart3, MessageCircle, Shield, Sparkles } from 'lucide-react';
 
 export default function Welcome({
     canRegister = true,
@@ -11,7 +11,7 @@ export default function Welcome({
 
     const features = [
         {
-            icon: DollarSign,
+            icon: Landmark,
             title: 'Track Transactions',
             description: 'Log your income and expenses in Kina. See where your money goes with clear categories.',
         },
@@ -51,7 +51,7 @@ export default function Welcome({
                     <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
                         <div className="flex items-center gap-2">
                             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-                                <DollarSign className="h-5 w-5 text-primary-foreground" />
+                                <Landmark className="h-5 w-5 text-primary-foreground" />
                             </div>
                             <span className="text-lg font-bold text-foreground">
                                 MoneySmart <span className="text-primary">PNG</span>
