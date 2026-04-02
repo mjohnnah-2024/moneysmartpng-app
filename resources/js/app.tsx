@@ -33,3 +33,12 @@ createInertiaApp({
 
 // This will set light / dark mode on load...
 initializeTheme();
+
+// Register PWA service worker (guard for SSR where navigator/window don't exist)
+if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {
+            // Service worker registration failed — app still works without it
+        });
+    });
+}

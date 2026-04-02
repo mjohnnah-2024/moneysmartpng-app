@@ -29,6 +29,12 @@ use App\Http\Middleware\IsAdmin;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
+Route::get('manifest.webmanifest', function () {
+    return response()->file(public_path('manifest.webmanifest'), [
+        'Content-Type' => 'application/manifest+json',
+    ]);
+})->name('pwa.manifest');
+
 Route::inertia('/', 'welcome', [
     'canRegister' => Features::enabled(Features::registration()),
 ])->name('home');
