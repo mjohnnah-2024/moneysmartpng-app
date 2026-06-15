@@ -14,8 +14,8 @@ use Laravel\Ai\Enums\Lab;
 use Laravel\Ai\Messages\Message;
 use Laravel\Ai\Promptable;
 
-#[Provider(Lab::OpenAI)]
-#[Model('gpt-4o-mini')]
+#[Provider(Lab::DeepSeek)]
+#[Model('deepseek-chat')]
 #[MaxTokens(1024)]
 #[Temperature(0.7)]
 class BudgetCoach implements Agent, Conversational
